@@ -1,0 +1,18 @@
+# Build output
+app/target/
+**/*.pdb
+
+# Screenshots and local evidence
+app/shots/
+checks/
+capture/
+reference/
+inbox/
+investigation.cany/
+
+# Tooling logs
+*.log
+build-activity.log
+craft.json
+feed.json
+usage.json

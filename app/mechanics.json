@@ -1,0 +1,387 @@
+{
+  "version": 2,
+  "values": [
+    {
+      "name": "X11 device option index",
+      "group": "device",
+      "value": 4,
+      "source": "res/main.xml option_device_4; page FUN_0049db00 (0x49db00)"
+    },
+    {
+      "name": "assignable button slots",
+      "group": "buttons",
+      "value": 18,
+      "source": "FUN_0049db00 (0x49db00) ms_4_btn_key_1..18; FUN_004a4670 (0x4a4670)"
+    },
+    {
+      "name": "physical buttons",
+      "group": "buttons",
+      "value": 5,
+      "source": "res/MS/MS_4/ms_4_page.xml rows 1,2,3,7,8"
+    },
+    {
+      "name": "factory button bytes",
+      "group": "buttons",
+      "value": "01 02 03 00 00 06 04 05 00 00 00 00 00 00 00 00 0B 0C",
+      "source": "FUN_004a4670 (0x4a4670) DAT_004ec8f0"
+    },
+    {
+      "name": "left-click required",
+      "group": "buttons",
+      "value": true,
+      "source": "FUN_004a09f0 (0x4a09f0) one_click_text check"
+    },
+    {
+      "name": "DPI stage slots",
+      "group": "dpi",
+      "value": 8,
+      "source": "FUN_0049e7a0 (0x49e7a0) eight slots at 0x8c4..0x8e0"
+    },
+    {
+      "name": "DPI stages enabled by default",
+      "group": "dpi",
+      "value": 6,
+      "source": "FUN_004a4670 (0x4a4670) flags 1,1,1,1,1,1,0,0"
+    },
+    {
+      "name": "DPI minimum",
+      "group": "dpi",
+      "value": 50,
+      "unit": "DPI",
+      "source": "FUN_004a07d0 (0x4a07d0)"
+    },
+    {
+      "name": "DPI maximum",
+      "group": "dpi",
+      "value": 22000,
+      "unit": "DPI",
+      "source": "FUN_004a07d0 (0x4a07d0)"
+    },
+    {
+      "name": "DPI slider positions",
+      "group": "dpi",
+      "value": 320,
+      "source": "FUN_004a07d0 (0x4a07d0); ms_4_page.xml slider max 320"
+    },
+    {
+      "name": "DPI low-range step",
+      "group": "dpi",
+      "value": 50,
+      "unit": "DPI",
+      "source": "FUN_004a07d0 (0x4a07d0)"
+    },
+    {
+      "name": "DPI high-range step",
+      "group": "dpi",
+      "value": 100,
+      "unit": "DPI",
+      "source": "FUN_004a07d0 (0x4a07d0)"
+    },
+    {
+      "name": "DPI split point",
+      "group": "dpi",
+      "value": 10000,
+      "unit": "DPI",
+      "source": "FUN_004a07d0 (0x4a07d0)"
+    },
+    {
+      "name": "factory DPI positions",
+      "group": "dpi",
+      "value": "16, 32, 48, 64, 100, 320, 0, 0",
+      "source": "FUN_004a4670 (0x4a4670) and DAT_004ec398 fallback"
+    },
+    {
+      "name": "factory DPI values",
+      "group": "dpi",
+      "value": "800, 1600, 2400, 3200, 5000, 22000 (slots 7-8 disabled)",
+      "source": "FUN_004a4670 (0x4a4670) positions converted by FUN_004a07d0"
+    },
+    {
+      "name": "factory stage colours",
+      "group": "dpi",
+      "value": "0000FF, 00FF00, FF0000, 00FFFF, FFFF00, FF00FF, 0040FF, FFFFFF",
+      "source": "FUN_004a4670 (0x4a4670) offsets 0x960..0x97c"
+    },
+    {
+      "name": "active DPI stage default",
+      "group": "dpi",
+      "value": 1,
+      "source": "FUN_004a4670 (0x4a4670) offset 0x934"
+    },
+    {
+      "name": "polling rate 0",
+      "group": "polling",
+      "value": 125,
+      "unit": "Hz",
+      "source": "FUN_0049e7a0 (0x49e7a0) index 0; EN.xml prate_1_text Power Saving"
+    },
+    {
+      "name": "polling rate 1",
+      "group": "polling",
+      "value": 250,
+      "unit": "Hz",
+      "source": "FUN_0049e7a0 (0x49e7a0) index 1; EN.xml prate_2_text Office"
+    },
+    {
+      "name": "polling rate 2",
+      "group": "polling",
+      "value": 500,
+      "unit": "Hz",
+      "source": "FUN_0049e7a0 (0x49e7a0) index 2; EN.xml prate_3_text Gaming"
+    },
+    {
+      "name": "polling rate 3",
+      "group": "polling",
+      "value": 1000,
+      "unit": "Hz",
+      "source": "FUN_0049e7a0 (0x49e7a0) index 3; EN.xml prate_4_text E-sports"
+    },
+    {
+      "name": "default polling index",
+      "group": "polling",
+      "value": 3,
+      "source": "FUN_004a4670 (0x4a4670) offset 0x938 = 3"
+    },
+    {
+      "name": "polling report period bytes",
+      "group": "polling",
+      "value": "index 0=8, 1=4, 2=2, 3=1 ms",
+      "source": "FUN_004a38a0 (0x4a38a0) and FUN_004a3000 (0x4a3000)"
+    },
+    {
+      "name": "polling report query",
+      "group": "polling",
+      "value": "class 6, command 9, 9 bytes",
+      "source": "FUN_004a38a0 (0x4a38a0)"
+    },
+    {
+      "name": "lighting modes",
+      "group": "lighting",
+      "value": 7,
+      "source": "FUN_0049e7a0 (0x49e7a0) clamp 0..6; FUN_004a4670 (0x4a4670)"
+    },
+    {
+      "name": "brightness minimum",
+      "group": "lighting",
+      "value": 1,
+      "source": "FUN_0049e7a0 (0x49e7a0); ms_4_slider_brightness min 1"
+    },
+    {
+      "name": "brightness maximum",
+      "group": "lighting",
+      "value": 8,
+      "source": "FUN_0049e7a0 (0x49e7a0); ms_4_slider_brightness max 8"
+    },
+    {
+      "name": "brightness default",
+      "group": "lighting",
+      "value": 8,
+      "source": "FUN_004a4670 (0x4a4670) offset 0x924 = 8"
+    },
+    {
+      "name": "breathing speed minimum",
+      "group": "lighting",
+      "value": 4,
+      "source": "FUN_0049e7a0 (0x49e7a0) clamp 4..8"
+    },
+    {
+      "name": "breathing speed maximum",
+      "group": "lighting",
+      "value": 8,
+      "source": "FUN_0049e7a0 (0x49e7a0) clamp 4..8"
+    },
+    {
+      "name": "breathing speed default",
+      "group": "lighting",
+      "value": 6,
+      "source": "FUN_004a4670 (0x4a4670) offset 0x928 = 6"
+    },
+    {
+      "name": "default light colour",
+      "group": "lighting",
+      "value": "00FF00",
+      "source": "FUN_004a4670 (0x4a4670) offset 0x95c"
+    },
+    {
+      "name": "lighting colour presets",
+      "group": "lighting",
+      "value": 16,
+      "source": "res/MS/MS_4/ms_4_lightpage.xml ms_4_color_btn1..16"
+    },
+    {
+      "name": "debounce minimum",
+      "group": "performance",
+      "value": 2,
+      "unit": "ms",
+      "source": "FUN_0049e7a0 (0x49e7a0); ms_4_slider_key_debounce min 2"
+    },
+    {
+      "name": "debounce maximum",
+      "group": "performance",
+      "value": 25,
+      "unit": "ms",
+      "source": "FUN_0049e7a0 (0x49e7a0); ms_4_slider_key_debounce max 25"
+    },
+    {
+      "name": "debounce default",
+      "group": "performance",
+      "value": 4,
+      "unit": "ms",
+      "source": "FUN_004a4670 (0x4a4670) offset 0x958 = 4"
+    },
+    {
+      "name": "ripple control default",
+      "group": "performance",
+      "value": true,
+      "source": "FUN_004a4670 (0x4a4670) offset 0x940 = 1"
+    },
+    {
+      "name": "angle snap default",
+      "group": "performance",
+      "value": false,
+      "source": "FUN_004a4670 (0x4a4670) offset 0x944 = 0"
+    },
+    {
+      "name": "motion sync default",
+      "group": "performance",
+      "value": true,
+      "source": "FUN_004a4670 (0x4a4670) offset 0x948 = 1"
+    },
+    {
+      "name": "lift-off default",
+      "group": "performance",
+      "value": 1,
+      "unit": "mm",
+      "source": "FUN_004a4670 (0x4a4670) offset 0x8b4 = 0 (option 1 mm)"
+    },
+    {
+      "name": "lift-off options",
+      "group": "performance",
+      "value": "1 mm, 2 mm",
+      "source": "ms_4_page.xml ms_4_option_lift_of_distance_1/2"
+    },
+    {
+      "name": "light-off timer minimum",
+      "group": "power",
+      "value": 1,
+      "unit": "min",
+      "source": "FUN_0049e7a0 (0x49e7a0); ms_4_slider_light_off min 1"
+    },
+    {
+      "name": "light-off timer maximum",
+      "group": "power",
+      "value": 60,
+      "unit": "min",
+      "source": "FUN_0049e7a0 (0x49e7a0); ms_4_slider_light_off max 60"
+    },
+    {
+      "name": "light-off timer default",
+      "group": "power",
+      "value": 1,
+      "unit": "min",
+      "source": "FUN_004a4670 (0x4a4670) offset 0x930 = 1"
+    },
+    {
+      "name": "sleep timer minimum",
+      "group": "power",
+      "value": 1,
+      "unit": "min",
+      "source": "FUN_0049e7a0 (0x49e7a0); ms_4_slider_sleep_timer min 1"
+    },
+    {
+      "name": "sleep timer maximum",
+      "group": "power",
+      "value": 60,
+      "unit": "min",
+      "source": "FUN_0049e7a0 (0x49e7a0); ms_4_slider_sleep_timer max 60"
+    },
+    {
+      "name": "sleep timer default",
+      "group": "power",
+      "value": 10,
+      "unit": "min",
+      "source": "FUN_004a4670 (0x4a4670) offset 0x92c = 10"
+    },
+    {
+      "name": "move wake default",
+      "group": "power",
+      "value": false,
+      "source": "FUN_004a4670 (0x4a4670) leaves 0x93c zero"
+    },
+    {
+      "name": "battery poll interval",
+      "group": "power",
+      "value": 6000,
+      "unit": "ms",
+      "source": "FUN_004a38a0 (0x4a38a0) timer 0x230; FUN_0043bc50 (0x43bc50) timers 0x2c0/0x2c4/0x2c5"
+    },
+    {
+      "name": "battery report id",
+      "group": "power",
+      "value": 11,
+      "source": "FUN_004a38a0 (0x4a38a0) feature report 0x0B, 8 bytes"
+    },
+    {
+      "name": "slider apply delay",
+      "group": "timing",
+      "value": 500,
+      "unit": "ms",
+      "source": "FUN_004a04f0 (0x4a04f0) timer 0x231"
+    },
+    {
+      "name": "combo apply delay",
+      "group": "timing",
+      "value": 200,
+      "unit": "ms",
+      "source": "FUN_004a01c0 (0x4a01c0) timer 0x231"
+    },
+    {
+      "name": "option reveal delay",
+      "group": "timing",
+      "value": 10,
+      "unit": "ms",
+      "source": "FUN_004a02c0 (0x4a02c0) timer 0x232"
+    },
+    {
+      "name": "macro default delay",
+      "group": "macros",
+      "value": 10,
+      "unit": "ms",
+      "source": "FUN_0049f040 (0x49f040)",
+      "estimated": false
+    },
+    {
+      "name": "macro default loops",
+      "group": "macros",
+      "value": 1,
+      "source": "FUN_0049f040 (0x49f040)"
+    },
+    {
+      "name": "macro name length",
+      "group": "macros",
+      "value": 24,
+      "unit": "characters",
+      "source": "FUN_004a09f0 (0x4a09f0) wcscpy_s(...,0x18,...)"
+    },
+    {
+      "name": "macro action block",
+      "group": "macros",
+      "value": 184,
+      "unit": "bytes",
+      "source": "FUN_004a09f0 (0x4a09f0) 0x2e dwords"
+    },
+    {
+      "name": "profile block size",
+      "group": "profiles",
+      "value": 32992,
+      "unit": "bytes",
+      "source": "FUN_0049e4c0 (0x49e4c0) memcpy 0x80e0; FUN_0049edd0 (0x49edd0)"
+    },
+    {
+      "name": "profile save file",
+      "group": "profiles",
+      "value": "<app data>\\ms_4\\pro.data",
+      "source": "FUN_004a4970 (0x4a4970)"
+    }
+  ]
+}
