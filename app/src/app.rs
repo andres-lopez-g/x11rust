@@ -242,8 +242,26 @@ impl X11App {
         self.ledger.settings.lang
     }
 
+    fn battery_percent(&self) -> Option<u8> {
+        self.hardware.battery().map(|battery| battery.percent)
+    }
+
+    fn shown_battery_percent(&self) -> f32 {
+        self.battery_percent().map(f32::from).unwrap_or(82.0)
+    }
+
+    fn battery_text(&self) -> String {
+        match self.battery_percent() {
+            Some(percent) => format!("{percent} %"),
+            None if self.hardware.connected() => "—".into(),
+            None => "82 %".into(),
+        }
+    }
+
     fn dirty(&self) -> bool {
-        self.ledger.profiles != self.saved.profiles || self.ledger.macros != self.saved.macros
+        self.ledger.profiles != self.saved.profiles
+            || self.ledger.macros != self.saved.macros
+            || self.ledger.active != self.saved.active
     }
 
     fn notify(&mut self, text: impl Into<String>, tone: ToastTone, time: f64) {
@@ -260,8 +278,8 @@ impl X11App {
         self.saved = self.ledger.clone();
         let saved = self.ledger.save();
         if self.hardware.connected() {
-            let profile = self.ledger.profile().clone();
-            match self.hardware.apply_profile(&profile) {
+            let ledger = self.ledger.clone();
+            match self.hardware.apply_ledger(&ledger) {
                 Ok(()) => self.notify(
                     lang.t(
                         "Aplicado al X11. El ratón ya usa esta configuración.",
@@ -307,6 +325,7 @@ impl X11App {
         let lang = self.lang();
         self.ledger.profiles = self.saved.profiles.clone();
         self.ledger.macros = self.saved.macros.clone();
+        self.ledger.active = self.saved.active;
         self.notify(
             lang.t("Cambios descartados.", "Changes discarded."),
             ToastTone::Info,
@@ -529,7 +548,11 @@ impl X11App {
                             .color(theme.dim),
                     );
                     ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
-                        ui.label(RichText::new("82 %").size(9.5).color(theme.text));
+                        ui.label(
+                            RichText::new(self.battery_text())
+                                .size(9.5)
+                                .color(theme.text),
+                        );
                     });
                 });
                 let (bar, _) =
@@ -540,7 +563,10 @@ impl X11App {
                     Color32::from_rgb(0x26, 0x30, 0x3D),
                 );
                 ui.painter().rect_filled(
-                    Rect::from_min_size(bar.min, vec2(bar.width() * 0.82, bar.height())),
+                    Rect::from_min_size(
+                        bar.min,
+                        vec2(bar.width() * self.shown_battery_percent() / 100.0, bar.height()),
+                    ),
                     CornerRadius::same(3),
                     theme.success,
                 );
@@ -1066,7 +1092,12 @@ impl X11App {
                             });
                             ui.add_space(10.0);
                             ui.vertical_centered(|ui| {
-                                theme::battery_ring(ui, theme, 82.0, 118.0);
+                                theme::battery_ring(
+                                    ui,
+                                    theme,
+                                    self.shown_battery_percent(),
+                                    118.0,
+                                );
                             });
                             ui.add_space(4.0);
                             ui.vertical_centered(|ui| {
@@ -1076,8 +1107,16 @@ impl X11App {
                                         .color(theme.muted),
                                 );
                                 ui.label(
-                                    RichText::new(if self.hardware.connected() {
-                                        lang.t("Lectura del X11 conectado.", "Reading from the connected X11.")
+                                    RichText::new(if self.battery_percent().is_some() {
+                                        lang.t(
+                                            "Lectura del X11 conectado.",
+                                            "Reading from the connected X11.",
+                                        )
+                                    } else if self.hardware.connected() {
+                                        lang.t(
+                                            "Esperando el primer informe de batería del X11.",
+                                            "Waiting for the first battery report from the X11.",
+                                        )
                                     } else {
                                         lang.t(
                                             "Valor de vista previa hasta conectar el ratón.",
@@ -1107,8 +1146,8 @@ impl X11App {
                             ui.add_space(10.0);
                             if secondary_button(ui, theme, lang.t("Sincronizar", "Sync")).clicked() {
                                 if self.hardware.connect() {
-                                    let profile = self.ledger.profile().clone();
-                                    match self.hardware.apply_profile(&profile) {
+                                    let ledger = self.ledger.clone();
+                                    match self.hardware.apply_ledger(&ledger) {
                                         Ok(()) => self.notify(
                                             lang.t(
                                                 "X11 conectado y configuración aplicada.",
@@ -1673,15 +1712,29 @@ impl X11App {
                                 .color(theme.muted),
                             );
                             ui.add_space(6.0);
-                            ui.label(
-                                RichText::new(format!(
-                                    "{}: {}",
-                                    lang.t("Etapa de arranque", "Start-up stage"),
-                                    DPI_ACTIVE_DEFAULT + 1
-                                ))
-                                .size(10.0)
-                                .color(theme.dim),
-                            );
+                            ui.horizontal(|ui| {
+                                ui.label(
+                                    RichText::new(lang.t(
+                                        "Etapa de arranque",
+                                        "Start-up stage",
+                                    ))
+                                    .size(10.0)
+                                    .color(theme.dim),
+                                );
+                                let mut active = self.ledger.profile().active_stage + 1;
+                                if ui
+                                    .add(
+                                        egui::DragValue::new(&mut active)
+                                            .range(1..=DPI_STAGE_COUNT)
+                                            .speed(1.0)
+                                            .fixed_decimals(0),
+                                    )
+                                    .changed()
+                                {
+                                    self.ledger.profile_mut().active_stage =
+                                        (active - 1).min(DPI_STAGE_COUNT - 1);
+                                }
+                            });
                             ui.add_space(12.0);
                             if danger_button(ui, theme, lang.t("Restablecer DPI", "Reset DPI"))
                                 .clicked()
@@ -2093,7 +2146,7 @@ impl X11App {
                         });
                         ui.add_space(8.0);
                         ui.vertical_centered(|ui| {
-                            theme::battery_ring(ui, theme, 82.0, 156.0);
+                            theme::battery_ring(ui, theme, self.shown_battery_percent(), 156.0);
                         });
                         ui.add_space(8.0);
                         ui.vertical_centered(|ui| {
@@ -2125,7 +2178,16 @@ impl X11App {
                             ui,
                             theme,
                             lang.t("Carga", "Charge"),
-                            lang.t("No disponible", "Not available"),
+                            match self.hardware.battery() {
+                                Some(battery) if battery.charging => {
+                                    lang.t("Cargando", "Charging")
+                                }
+                                Some(battery) if battery.full => {
+                                    lang.t("Completa", "Complete")
+                                }
+                                Some(_) => lang.t("Con batería", "On battery"),
+                                None => lang.t("Sin lectura", "No reading"),
+                            },
                         );
                         info_row(ui, theme, lang.t("Sondeo", "Polling"), &format!("{} Hz", POLLING_RATES[polling]));
                     });
@@ -2948,7 +3010,7 @@ impl X11App {
                             ui.add_space(10.0);
                             info_row(ui, theme, lang.t("Modelo", "Model"), "X11 Wireless");
                             info_row(ui, theme, lang.t("Conexión", "Connection"), "2,4 GHz / USB-C");
-                            info_row(ui, theme, lang.t("Batería", "Battery"), "82 %");
+                            info_row(ui, theme, lang.t("Batería", "Battery"), &self.battery_text());
                             info_row(
                                 ui,
                                 theme,
@@ -2982,8 +3044,8 @@ impl X11App {
                             if secondary_button(ui, theme, lang.t("Buscar dispositivo", "Find device")).clicked()
                             {
                                 if self.hardware.connect() {
-                                    let profile = self.ledger.profile().clone();
-                                    let result = self.hardware.apply_profile(&profile);
+                                    let ledger = self.ledger.clone();
+                                    let result = self.hardware.apply_ledger(&ledger);
                                     match result {
                                         Ok(()) => self.notify(
                                             lang.t(
@@ -3730,6 +3792,7 @@ impl eframe::App for X11App {
             self.last_accent = self.ledger.settings.accent;
         }
         self.handle_shortcuts(&ctx, time);
+        self.hardware.poll_events();
         self.handle_recording(&ctx, time);
         self.draw_main(ui, &theme, time);
         self.draw_modals(&ctx, &theme, time);

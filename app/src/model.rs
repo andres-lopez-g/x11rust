@@ -27,15 +27,18 @@ pub const POLLING_REPORT_CODES: [u8; 4] = [8, 4, 2, 1];
 pub const LIGHT_MODE_COUNT: usize = 7;
 /// Factory DPI slider positions from `FUN_004a4670`.
 pub const DEFAULT_DPI_POSITIONS: [u32; DPI_STAGE_COUNT] = [16, 32, 48, 64, 100, 320, 0, 0];
-/// Factory per-stage colours from `FUN_004a4670` (0x0000FF, 0x00FF00, ...).
+/// Factory per-stage colours from `FUN_004a4670`.  The original stores
+/// COLORREF values (0x00BBGGRR), so these are the byte-swapped RGB values the
+/// device actually reports: red, green, blue, yellow, cyan, magenta, orange,
+/// white.
 pub const DEFAULT_STAGE_COLORS: [[u8; 3]; DPI_STAGE_COUNT] = [
-    [0x00, 0x00, 0xFF],
-    [0x00, 0xFF, 0x00],
     [0xFF, 0x00, 0x00],
-    [0x00, 0xFF, 0xFF],
+    [0x00, 0xFF, 0x00],
+    [0x00, 0x00, 0xFF],
     [0xFF, 0xFF, 0x00],
+    [0x00, 0xFF, 0xFF],
     [0xFF, 0x00, 0xFF],
-    [0x00, 0x40, 0xFF],
+    [0xFF, 0x40, 0x00],
     [0xFF, 0xFF, 0xFF],
 ];
 /// Factory light colour, `FUN_004a4670` writes 0x00FF00 at 0x95c.
@@ -663,6 +666,13 @@ pub struct Profile {
     pub light: LightSettings,
     pub performance: PerformanceSettings,
     pub power: PowerSettings,
+    /// Zero-based index of the stage the mouse starts on (factory: 1).
+    #[serde(default = "default_active_stage")]
+    pub active_stage: usize,
+}
+
+fn default_active_stage() -> usize {
+    DPI_ACTIVE_DEFAULT
 }
 
 impl Profile {
@@ -674,6 +684,7 @@ impl Profile {
             light: LightSettings::default(),
             performance: PerformanceSettings::default(),
             power: PowerSettings::default(),
+            active_stage: DPI_ACTIVE_DEFAULT,
         }
     }
 
@@ -750,6 +761,7 @@ impl Profile {
         self.performance.lift_mm = self.performance.lift_mm.clamp(1, 2);
         self.power.light_off_min = self.power.light_off_min.clamp(1, 60);
         self.power.sleep_min = self.power.sleep_min.clamp(1, 60);
+        self.active_stage = self.active_stage.min(DPI_STAGE_COUNT - 1);
     }
 }
 
@@ -1209,8 +1221,9 @@ mod tests {
         );
         assert!(stages[..6].iter().all(|s| s.enabled));
         assert!(!stages[6].enabled && !stages[7].enabled);
-        assert_eq!(stages[0].color, [0x00, 0x00, 0xFF]);
+        assert_eq!(stages[0].color, [0xFF, 0x00, 0x00]);
         assert_eq!(stages[5].color, [0xFF, 0x00, 0xFF]);
+        assert_eq!(stages[6].color, [0xFF, 0x40, 0x00]);
     }
 
     #[test]
