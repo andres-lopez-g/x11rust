@@ -5,9 +5,10 @@ the XML alone. The program is `AttackShark.exe` (32-bit PE, sha256
 `e0d78c3a…879daa`) from the installer payload. Each fact names the function it
 came from; the pseudo-C was produced by the Deep engine (Ghidra 12.1.4).
 
-The rebuild does **not** talk to a physical mouse yet. It stores profiles
-locally and previews them. The HID report layouts are only partly known (see
-§11), so no claim is made that a real X11 receives these settings.
+The rebuild now talks to a physical X11 through its vendor HID collection.
+Reading uses the `0xA0` read-permission handshake and writing sends whole
+feature reports. The layouts are documented in §11; they were checked against
+a connected `1D57:FA60` receiver with a read → write-identical → read-back test.
 
 ## 0. The page and its controls
 
@@ -295,22 +296,45 @@ Timer summary:
 | `0x230` | 6000 ms | `FUN_004a38a0` | refresh battery/settings |
 | `0x2c0/0x2c4/0x2c5` | 6000 ms | `FUN_0043bc50` | polling/DPI/lighting query |
 
-## 10. What the rebuild does not claim
+## 10. App-side choices
 
-These are app-side choices, not decoded original rules:
+These are rebuild choices, not decoded original rules:
 
 - The "latency" figure `1000 / polling_hz + debounce` ms is an estimate.
-- The battery percentage and charging state are previews.
-- The UI exposes the five physical buttons (hardware ids 1, 2, 3, 7, 8) rather
-  than all 18 slots; the full factory map is documented above and stored in
-  `mechanics.json`.
 - The Precision and Gaming profiles are rebuild presets; the original's factory
   profile data is the table in §1.
-- The rebuild still has no HID transport. Writing to a real X11 needs the
-  feature-report layouts, which are only partly decoded (report ids `0x0B`,
-  `6/9`, `4/0x38`, `5/0x0F`).
+- The UI exposes the five physical buttons (hardware ids 1, 2, 3, 7, 8)
+  rather than all 18 slots; the full factory map is documented above and stored
+  in `mechanics.json`.
+- Stage colours are stored as screen RGB. The original stores `COLORREF`
+  values (`0x00BBGGRR`), so its `0x0000FF` is displayed as red.
+- The active DPI stage is editable in the DPI screen (factory: stage 2).
 
-## 11. Evidence
+## 11. HID transport
+
+The X11 exposes three collections on interface 2: commands (usage page
+`0x000B`), events (`0x000A`) and consumer control (`0x000C`). Reads request
+permission with `A0 <id> <len> 00 01 00 00 00`, poll `A0` until `A0 01`, then
+read the target report.
+
+| Report | Size | Fields |
+|---|---|---|
+| `0x04` | 56 | `3` LOD/angle snap, `4` motion sync/ripple, `5` enabled-stage mask, `6`/`7` double/triple flags, `8..15` low DPI byte, `16..23` high DPI byte, `24` active stage (1-based), `25..48` RGB, `49` indicator mode, `50..51` checksum |
+| `0x05` | 15 | `3` lighting mode << 4, `4` deep-sleep high + LED speed, `5` deep-sleep low + brightness, `6..8` RGB, `9` light-off timer, `10` key response, `11..12` checksum |
+| `0x06` | 9 | `3` period code (8/4/2/1), `4` complement |
+| `0x08` | 59 | 18 slots × 3 bytes (action, modifiers, usage) from offset 3; checksum at `57..58` |
+| `0x09` | 3 × 64 | macro pages 0/1/2; checksum at page 2 offset `10..11` |
+| `0x0C` | 10 | `2` active profile, `3` complement, `4` profile count, `5` complement |
+
+Checksums are 16-bit big-endian sums: `0x04` sums bytes 3–49, `0x05` sums
+3–10, `0x08` sums 3–56. The DPI transfer table (`DPI_3311`) covers 50–12000 DPI;
+above 12000 the value is halved and the double flag is set. Battery events are
+input reports `03 <device> 40|41 <state> <percent>` on the events collection.
+
+These layouts match the public X11 protocol documentation and were confirmed
+against the connected device's own reports (§12).
+
+## 12. Evidence
 
 | Function | Address | Evidence id |
 |---|---|---|
